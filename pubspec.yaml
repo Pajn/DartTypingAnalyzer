@@ -1,0 +1,12 @@
+name: typing_analyzer
+version: 0.0.1
+description: Analyzes how typing are used in Dart projects
+author: Rasmus Eneman <rasmus@eneman.eu>
+#homepage: https://www.example.com
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+dependencies:
+  analyzer: any
+  path: any
+dev_dependencies:
+  guinness: any

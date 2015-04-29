@@ -11,14 +11,16 @@ class Result {
   int variableCount = 0;
   int constructorArgumentCount = 0;
   int constructorCount = 0;
-  int argumentCount = 0;
+  int functionArgumentCount = 0;
+  int methodArgumentCount = 0;
   int functionCount = 0;
   int methodCount = 0;
   int classCount = 0;
 
   int typedVariableCount = 0;
   int typedConstructorArgumentCount = 0;
-  int typedArgumentCount = 0;
+  int typedFunctionArgumentCount = 0;
+  int typedMethodArgumentCount = 0;
   int typedFunctionReturnTypeCount = 0;
   int typedMethodReturnTypeCount = 0;
 
@@ -27,14 +29,16 @@ class Result {
       ..variableCount = variableCount + other.variableCount
       ..constructorArgumentCount = constructorArgumentCount + other.constructorArgumentCount
       ..constructorCount = constructorCount + other.constructorCount
-      ..argumentCount = argumentCount + other.argumentCount
+      ..functionArgumentCount = functionArgumentCount + other.functionArgumentCount
+      ..methodArgumentCount = methodArgumentCount + other.methodArgumentCount
       ..functionCount = functionCount + other.functionCount
       ..methodCount = methodCount + other.methodCount
       ..classCount = classCount + other.classCount
 
       ..typedVariableCount = typedVariableCount + other.typedVariableCount
       ..typedConstructorArgumentCount = typedConstructorArgumentCount + other.typedConstructorArgumentCount
-      ..typedArgumentCount = typedArgumentCount + other.typedArgumentCount
+      ..typedFunctionArgumentCount = typedFunctionArgumentCount + other.typedFunctionArgumentCount
+      ..typedMethodArgumentCount = typedMethodArgumentCount + other.typedMethodArgumentCount
       ..typedFunctionReturnTypeCount = typedFunctionReturnTypeCount + other.typedFunctionReturnTypeCount
       ..typedMethodReturnTypeCount = typedMethodReturnTypeCount + other.typedMethodReturnTypeCount;
 }
@@ -47,7 +51,7 @@ class OverallResult {
   Result publicCommented = new Result();
   int typeCasts = 0;
 
-  Result get overall => privateUncommented + publicUncommented;
+  Result get overall => privateUncommented + privateCommented + publicUncommented + publicCommented;
 
   OverallResult operator +(OverallResult other) =>
     new OverallResult()
@@ -166,7 +170,7 @@ class _Analyzer extends RecursiveAstVisitor {
         e is TypeName && e.name.name != 'dynamic'));
 
     if (node.parent is FunctionDeclaration) {
-      var result;
+      Result result;
       if (Identifier.isPrivateName(node.parent.name.name)) {
         if (node.parent.documentationComment == null) {
           result = this.result.privateUncommented;
@@ -181,13 +185,13 @@ class _Analyzer extends RecursiveAstVisitor {
         }
       }
 
-      result.argumentCount += arguments.length;
-      result.typedArgumentCount += typedArguments.length;
+      result.functionArgumentCount += arguments.length;
+      result.typedFunctionArgumentCount += typedArguments.length;
     } else {
       result.local.functionCount++;
 
-      result.local.argumentCount += arguments.length;
-      result.local.typedArgumentCount += typedArguments.length;
+      result.local.functionArgumentCount += arguments.length;
+      result.local.typedFunctionArgumentCount += typedArguments.length;
     }
     super.visitFunctionExpression(node);
   }
@@ -216,8 +220,8 @@ class _Analyzer extends RecursiveAstVisitor {
       var typedArguments = arguments.where((a) => a.childEntities.any((e) =>
       e is TypeName && e.name.name != 'dynamic'));
 
-      result.argumentCount += arguments.length;
-      result.typedArgumentCount += typedArguments.length;
+      result.methodArgumentCount += arguments.length;
+      result.typedMethodArgumentCount += typedArguments.length;
     }
 
     if (node.returnType != null && node.returnType.name.name != 'dynamic') {
@@ -229,7 +233,6 @@ class _Analyzer extends RecursiveAstVisitor {
   @override
   visitVariableDeclaration(VariableDeclaration node) {
     Result result;
-    print(node.parent.parent.runtimeType);
     if (node.parent.parent is TopLevelVariableDeclaration ||
         node.parent.parent is FieldDeclaration) {
       if (Identifier.isPrivateName(node.name.name)) {

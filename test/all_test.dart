@@ -44,8 +44,8 @@ main() {
       var compilationUnits = parseDartFiles('${Platform.packageRoot}/typing_analyzer/analyzer.dart');
       var result = analyze(compilationUnits);
 
-      expect(result.publicUncommented.variableCount).toEqual(21);
-      expect(result.publicUncommented.typedVariableCount).toEqual(20);
+      expect(result.publicUncommented.variableCount).toEqual(0);
+      expect(result.publicUncommented.typedVariableCount).toEqual(0);
 
       expect(result.publicCommented.variableCount).toEqual(0);
       expect(result.publicCommented.typedVariableCount).toEqual(0);
@@ -56,45 +56,69 @@ main() {
       expect(result.privateCommented.variableCount).toEqual(0);
       expect(result.privateCommented.typedVariableCount).toEqual(0);
 
-      expect(result.local.variableCount).toEqual(13);
-      expect(result.local.typedVariableCount).toEqual(3);
+      expect(result.local.variableCount).toEqual(15);
+      expect(result.local.typedVariableCount).toEqual(2);
     });
 
     it('should correctly pick up class declarations', () {
       var compilationUnits = parseDartFiles('${Platform.packageRoot}/typing_analyzer/analyzer.dart');
       var result = analyze(compilationUnits);
 
-      expect(result.publicUncommented.classCount).toEqual(2);
-      expect(result.publicUncommented.constructorCount).toEqual(0);
-      expect(result.publicUncommented.constructorArgumentCount).toEqual(0);
-      expect(result.publicUncommented.methodCount).toEqual(9);
-      expect(result.publicUncommented.methodArgumentCount).toEqual(8);
-      expect(result.publicUncommented.typedMethodReturnTypeCount).toEqual(3);
-      expect(result.publicUncommented.typedMethodArgumentCount).toEqual(8);
+      expect(result.publicUncommented.classCount).toEqual(3);
+      expect(result.publicUncommented.classes.length).toEqual(4);
+      expect(result.publicUncommented.classes['ClassResult'].variableCount).toEqual(9);
+      expect(result.publicUncommented.classes['ClassResult'].constructorCount).toEqual(0);
+      expect(result.publicUncommented.classes['ClassResult'].constructorArgumentCount).toEqual(0);
+      expect(result.publicUncommented.classes['ClassResult'].methodCount).toEqual(1);
+      expect(result.publicUncommented.classes['ClassResult'].methodArgumentCount).toEqual(1);
+      expect(result.publicUncommented.classes['ClassResult'].typedVariableCount).toEqual(9);
+      expect(result.publicUncommented.classes['ClassResult'].typedMethodReturnTypeCount).toEqual(1);
+      expect(result.publicUncommented.classes['ClassResult'].typedMethodArgumentCount).toEqual(1);
+
+      expect(result.publicUncommented.classes['LibraryResult'].variableCount).toEqual(8);
+      expect(result.publicUncommented.classes['LibraryResult'].constructorCount).toEqual(0);
+      expect(result.publicUncommented.classes['LibraryResult'].constructorArgumentCount).toEqual(0);
+      expect(result.publicUncommented.classes['LibraryResult'].methodCount).toEqual(1);
+      expect(result.publicUncommented.classes['LibraryResult'].methodArgumentCount).toEqual(1);
+      expect(result.publicUncommented.classes['LibraryResult'].typedVariableCount).toEqual(8);
+      expect(result.publicUncommented.classes['LibraryResult'].typedMethodReturnTypeCount).toEqual(1);
+      expect(result.publicUncommented.classes['LibraryResult'].typedMethodArgumentCount).toEqual(1);
+
+      expect(result.publicUncommented.classes['OverallResult'].variableCount).toEqual(6);
+      expect(result.publicUncommented.classes['OverallResult'].constructorCount).toEqual(0);
+      expect(result.publicUncommented.classes['OverallResult'].constructorArgumentCount).toEqual(0);
+      expect(result.publicUncommented.classes['OverallResult'].methodCount).toEqual(4);
+      expect(result.publicUncommented.classes['OverallResult'].methodArgumentCount).toEqual(1);
+      expect(result.publicUncommented.classes['OverallResult'].typedVariableCount).toEqual(6);
+      expect(result.publicUncommented.classes['OverallResult'].typedMethodReturnTypeCount).toEqual(4);
+      expect(result.publicUncommented.classes['OverallResult'].typedMethodArgumentCount).toEqual(1);
+
+      expect(result.publicUncommented.classes['_Analyzer'].variableCount).toEqual(1);
+      expect(result.publicUncommented.classes['_Analyzer'].constructorCount).toEqual(1);
+      expect(result.publicUncommented.classes['_Analyzer'].constructorArgumentCount).toEqual(0);
+      expect(result.publicUncommented.classes['_Analyzer'].methodCount).toEqual(6);
+      expect(result.publicUncommented.classes['_Analyzer'].methodArgumentCount).toEqual(6);
+      expect(result.publicUncommented.classes['_Analyzer'].typedVariableCount).toEqual(0);
+      expect(result.publicUncommented.classes['_Analyzer'].typedMethodReturnTypeCount).toEqual(0);
+      expect(result.publicUncommented.classes['_Analyzer'].typedMethodArgumentCount).toEqual(6);
 
       expect(result.publicCommented.classCount).toEqual(0);
-      expect(result.publicCommented.constructorCount).toEqual(0);
-      expect(result.publicCommented.constructorArgumentCount).toEqual(0);
-      expect(result.publicCommented.methodCount).toEqual(1);
-      expect(result.publicCommented.methodArgumentCount).toEqual(1);
-      expect(result.publicCommented.typedMethodReturnTypeCount).toEqual(0);
-      expect(result.publicCommented.typedMethodArgumentCount).toEqual(1);
+      expect(result.publicCommented.classes.length).toEqual(1);
+
+      expect(result.publicCommented.classes['_Analyzer'].variableCount).toEqual(0);
+      expect(result.publicCommented.classes['_Analyzer'].constructorCount).toEqual(0);
+      expect(result.publicCommented.classes['_Analyzer'].constructorArgumentCount).toEqual(0);
+      expect(result.publicCommented.classes['_Analyzer'].methodCount).toEqual(1);
+      expect(result.publicCommented.classes['_Analyzer'].methodArgumentCount).toEqual(1);
+      expect(result.publicCommented.classes['_Analyzer'].typedVariableCount).toEqual(0);
+      expect(result.publicCommented.classes['_Analyzer'].typedMethodReturnTypeCount).toEqual(0);
+      expect(result.publicCommented.classes['_Analyzer'].typedMethodArgumentCount).toEqual(1);
 
       expect(result.privateUncommented.classCount).toEqual(1);
-      expect(result.privateUncommented.constructorCount).toEqual(0);
-      expect(result.privateUncommented.constructorArgumentCount).toEqual(0);
-      expect(result.privateUncommented.methodCount).toEqual(0);
-      expect(result.privateUncommented.methodArgumentCount).toEqual(0);
-      expect(result.privateUncommented.typedMethodReturnTypeCount).toEqual(0);
-      expect(result.privateUncommented.typedMethodArgumentCount).toEqual(0);
+      expect(result.privateUncommented.classes.length).toEqual(0);
 
       expect(result.privateCommented.classCount).toEqual(0);
-      expect(result.privateCommented.constructorCount).toEqual(0);
-      expect(result.privateCommented.constructorArgumentCount).toEqual(0);
-      expect(result.privateCommented.methodCount).toEqual(0);
-      expect(result.privateCommented.methodArgumentCount).toEqual(0);
-      expect(result.privateCommented.typedMethodReturnTypeCount).toEqual(0);
-      expect(result.privateCommented.typedMethodArgumentCount).toEqual(0);
+      expect(result.privateCommented.classes.length).toEqual(0);
     });
   });
 }

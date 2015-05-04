@@ -7,51 +7,69 @@ library analyzer;
 
 import 'package:analyzer/analyzer.dart';
 
-class Result {
+class ClassResult {
   int variableCount = 0;
   int constructorArgumentCount = 0;
   int constructorCount = 0;
-  int functionArgumentCount = 0;
   int methodArgumentCount = 0;
-  int functionCount = 0;
   int methodCount = 0;
-  int classCount = 0;
 
   int typedVariableCount = 0;
   int typedConstructorArgumentCount = 0;
-  int typedFunctionArgumentCount = 0;
   int typedMethodArgumentCount = 0;
-  int typedFunctionReturnTypeCount = 0;
   int typedMethodReturnTypeCount = 0;
 
-  Result operator +(Result other) =>
-    new Result()
+  ClassResult operator +(ClassResult other) =>
+    new ClassResult()
       ..variableCount = variableCount + other.variableCount
       ..constructorArgumentCount = constructorArgumentCount + other.constructorArgumentCount
       ..constructorCount = constructorCount + other.constructorCount
-      ..functionArgumentCount = functionArgumentCount + other.functionArgumentCount
       ..methodArgumentCount = methodArgumentCount + other.methodArgumentCount
-      ..functionCount = functionCount + other.functionCount
       ..methodCount = methodCount + other.methodCount
-      ..classCount = classCount + other.classCount
 
       ..typedVariableCount = typedVariableCount + other.typedVariableCount
       ..typedConstructorArgumentCount = typedConstructorArgumentCount + other.typedConstructorArgumentCount
-      ..typedFunctionArgumentCount = typedFunctionArgumentCount + other.typedFunctionArgumentCount
       ..typedMethodArgumentCount = typedMethodArgumentCount + other.typedMethodArgumentCount
-      ..typedFunctionReturnTypeCount = typedFunctionReturnTypeCount + other.typedFunctionReturnTypeCount
       ..typedMethodReturnTypeCount = typedMethodReturnTypeCount + other.typedMethodReturnTypeCount;
 }
 
+class LibraryResult {
+  int variableCount = 0;
+  int functionArgumentCount = 0;
+  int functionCount = 0;
+  int classCount = 0;
+
+  int typedVariableCount = 0;
+  int typedFunctionArgumentCount = 0;
+  int typedFunctionReturnTypeCount = 0;
+
+  Map<String, ClassResult> classes = {};
+
+  LibraryResult operator +(LibraryResult other) =>
+    new LibraryResult()
+      ..variableCount = variableCount + other.variableCount
+      ..functionArgumentCount = functionArgumentCount + other.functionArgumentCount
+      ..functionCount = functionCount + other.functionCount
+
+      ..typedVariableCount = typedVariableCount + other.typedVariableCount
+      ..typedFunctionArgumentCount = typedFunctionArgumentCount + other.typedFunctionArgumentCount
+      ..typedFunctionReturnTypeCount = typedFunctionReturnTypeCount + other.typedFunctionReturnTypeCount
+      ..classCount = classCount + other.classCount
+
+      ..classes = (new Map.from(classes)..addAll(other.classes));
+}
+
 class OverallResult {
-  Result local = new Result();
-  Result privateUncommented = new Result();
-  Result privateCommented = new Result();
-  Result publicUncommented = new Result();
-  Result publicCommented = new Result();
+  LibraryResult local = new LibraryResult();
+  LibraryResult privateUncommented = new LibraryResult();
+  LibraryResult privateCommented = new LibraryResult();
+  LibraryResult publicUncommented = new LibraryResult();
+  LibraryResult publicCommented = new LibraryResult();
   int typeCasts = 0;
 
-  Result get overall => privateUncommented + privateCommented + publicUncommented + publicCommented;
+  LibraryResult get commented => privateCommented + publicCommented;
+  LibraryResult get uncommented => privateUncommented + publicUncommented;
+  LibraryResult get overall => commented + uncommented;
 
   OverallResult operator +(OverallResult other) =>
     new OverallResult()
@@ -77,6 +95,8 @@ OverallResult _analyze(CompilationUnit compilationUnit) {
 
 class _Analyzer extends RecursiveAstVisitor {
   final result = new OverallResult();
+
+  _Analyzer();
 
   @override
   visitAsExpression(AsExpression node) {
@@ -109,20 +129,24 @@ class _Analyzer extends RecursiveAstVisitor {
 
   @override
   visitConstructorDeclaration(ConstructorDeclaration node) {
-    var result;
-    if (Identifier.isPrivateName(node.name.name)) {
+    var libraryResult;
+    // node.name is null on default (unnamed) constructors
+    if (node.name != null && Identifier.isPrivateName(node.name.name)) {
       if (node.documentationComment == null) {
-        result = this.result.privateUncommented;
+        libraryResult = this.result.privateUncommented;
       } else {
-        result = this.result.privateCommented;
+        libraryResult = this.result.privateCommented;
       }
     } else {
       if (node.documentationComment == null) {
-        result = this.result.publicUncommented;
+        libraryResult = this.result.publicUncommented;
       } else {
-        result = this.result.publicCommented;
+        libraryResult = this.result.publicCommented;
       }
     }
+
+    libraryResult.classes.putIfAbsent(node.parent.name.name, () => new ClassResult());
+    var result = libraryResult.classes[node.parent.name.name];
 
     result.constructorCount++;
 
@@ -170,7 +194,7 @@ class _Analyzer extends RecursiveAstVisitor {
         e is TypeName && e.name.name != 'dynamic'));
 
     if (node.parent is FunctionDeclaration) {
-      Result result;
+      LibraryResult result;
       if (Identifier.isPrivateName(node.parent.name.name)) {
         if (node.parent.documentationComment == null) {
           result = this.result.privateUncommented;
@@ -198,20 +222,24 @@ class _Analyzer extends RecursiveAstVisitor {
 
   @override
   visitMethodDeclaration(MethodDeclaration node) {
-    var result;
-    if (Identifier.isPrivateName(node.name.name)) {
+    var libraryResult;
+    // node.name is null on default (unnamed) constructors
+    if (node.name != null && Identifier.isPrivateName(node.name.name)) {
       if (node.documentationComment == null) {
-        result = this.result.privateUncommented;
+        libraryResult = this.result.privateUncommented;
       } else {
-        result = this.result.privateCommented;
+        libraryResult = this.result.privateCommented;
       }
     } else {
       if (node.documentationComment == null) {
-        result = this.result.publicUncommented;
+        libraryResult = this.result.publicUncommented;
       } else {
-        result = this.result.publicCommented;
+        libraryResult = this.result.publicCommented;
       }
     }
+
+    libraryResult.classes.putIfAbsent(node.parent.name.name, () => new ClassResult());
+    var result = libraryResult.classes[node.parent.name.name];
 
     result.methodCount++;
 
@@ -232,7 +260,7 @@ class _Analyzer extends RecursiveAstVisitor {
 
   @override
   visitVariableDeclaration(VariableDeclaration node) {
-    Result result;
+    var result;
     if (node.parent.parent is TopLevelVariableDeclaration ||
         node.parent.parent is FieldDeclaration) {
       if (Identifier.isPrivateName(node.name.name)) {
@@ -251,6 +279,12 @@ class _Analyzer extends RecursiveAstVisitor {
     } else {
       result = this.result.local;
     }
+
+    if (node.parent.parent.parent is ClassDeclaration) {
+      result.classes.putIfAbsent(node.parent.parent.parent.name.name, () => new ClassResult());
+      result = result.classes[node.parent.parent.parent.name.name];
+    }
+
     result.variableCount++;
 
     if (node.parent.childEntities.any((e) => e is TypeName && e.name.name != 'dynamic')) {

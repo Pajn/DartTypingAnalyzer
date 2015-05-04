@@ -12,68 +12,50 @@ debugWriter(OverallResult result) {
 
   print('variables: ${result.local.variableCount}');
   print('anon functions: ${result.local.functionCount}');
-  print('anon functions args: ${result.local.argumentCount}');
-  print('typed anon functions param: ${result.local.typedArgumentCount}');
+  print('anon functions args: ${result.local.functionArgumentCount}');
+  print('typed anon functions param: ${result.local.typedFunctionArgumentCount}');
 
   print('Private: ');
-  print('classes: ${result.privateUncommented.classCount}');
-  print('constructors: ${result.privateUncommented.constructorCount}');
-  print('constructor arguments: ${result.privateUncommented.constructorArgumentCount}');
-  print('methods: ${result.privateUncommented.methodCount}');
-  print('functions: ${result.privateUncommented.functionCount}');
-  print('args: ${result.privateUncommented.argumentCount}');
-  print('vars: ${result.privateUncommented.variableCount}');
-
-  print('typed constructor arguments: ${result.privateUncommented.typedConstructorArgumentCount}');
-  print('typed args: ${result.privateUncommented.typedArgumentCount}');
-  print('typed meth return: ${result.privateUncommented.typedMethodReturnTypeCount}');
-  print('typed func return: ${result.privateUncommented.typedFunctionReturnTypeCount}');
-  print('typed vars: ${result.privateUncommented.typedVariableCount}');
+  _debugResult(result.privateUncommented);
 
   print('Private Commented: ');
-  print('classes: ${result.privateCommented.classCount}');
-  print('constructors: ${result.privateCommented.constructorCount}');
-  print('constructor arguments: ${result.privateCommented.constructorArgumentCount}');
-  print('methods: ${result.privateCommented.methodCount}');
-  print('functions: ${result.privateCommented.functionCount}');
-  print('args: ${result.privateCommented.argumentCount}');
-  print('vars: ${result.privateCommented.variableCount}');
-
-  print('typed constructor arguments: ${result.privateCommented.typedConstructorArgumentCount}');
-  print('typed args: ${result.privateCommented.typedArgumentCount}');
-  print('typed meth return: ${result.privateCommented.typedMethodReturnTypeCount}');
-  print('typed func return: ${result.privateCommented.typedFunctionReturnTypeCount}');
-  print('typed vars: ${result.privateCommented.typedVariableCount}');
+  _debugResult(result.privateCommented);
 
   print('Public: ');
-  print('classes: ${result.publicUncommented.classCount}');
-  print('constructors: ${result.publicUncommented.constructorCount}');
-  print('constructor arguments: ${result.publicUncommented.constructorArgumentCount}');
-  print('methods: ${result.publicUncommented.methodCount}');
-  print('functions: ${result.publicUncommented.functionCount}');
-  print('args: ${result.publicUncommented.argumentCount}');
-  print('vars: ${result.publicUncommented.variableCount}');
-
-  print('typed constructor arguments: ${result.publicUncommented.typedConstructorArgumentCount}');
-  print('typed args: ${result.publicUncommented.typedArgumentCount}');
-  print('typed meth return: ${result.publicUncommented.typedMethodReturnTypeCount}');
-  print('typed func return: ${result.publicUncommented.typedFunctionReturnTypeCount}');
-  print('typed vars: ${result.publicUncommented.typedVariableCount}');
+  _debugResult(result.publicUncommented);
 
   print('Public Commented: ');
-  print('classes: ${result.publicCommented.classCount}');
-  print('constructors: ${result.publicCommented.constructorCount}');
-  print('constructor arguments: ${result.publicCommented.constructorArgumentCount}');
-  print('methods: ${result.publicCommented.methodCount}');
-  print('functions: ${result.publicCommented.functionCount}');
-  print('args: ${result.publicCommented.argumentCount}');
-  print('vars: ${result.publicCommented.variableCount}');
-
-  print('typed constructor arguments: ${result.publicCommented.typedConstructorArgumentCount}');
-  print('typed args: ${result.publicCommented.typedArgumentCount}');
-  print('typed meth return: ${result.publicCommented.typedMethodReturnTypeCount}');
-  print('typed func return: ${result.publicCommented.typedFunctionReturnTypeCount}');
-  print('typed vars: ${result.publicCommented.typedVariableCount}');
+  _debugResult(result.publicCommented);
 
   print('type casts: ${result.typeCasts}');
 }
+
+_debugResult(LibraryResult result) {
+  print('functions: ${result.functionCount}');
+  print('func args: ${result.functionArgumentCount}');
+  print('vars: ${result.variableCount}');
+
+  print('typed func args: ${result.typedFunctionArgumentCount} (${_p(result.typedFunctionArgumentCount/result.functionArgumentCount)}%)');
+  print('typed func return: ${result.typedFunctionReturnTypeCount} (${_p(result.typedFunctionReturnTypeCount/result.functionCount)}%)');
+  print('typed vars: ${result.typedVariableCount} (${_p(result.typedVariableCount/result.variableCount)}%)');
+
+  print('classes: ${result.classCount}');
+  result.classes.forEach((name, value) {
+    print(name);
+
+    _debugClass(value);
+  });
+}
+
+_debugClass(ClassResult result) {
+  print('constructors: ${result.constructorCount}');
+  print('constructor arguments: ${result.constructorArgumentCount}');
+  print('methods: ${result.methodCount}');
+  print('method args: ${result.methodArgumentCount}');
+
+  print('typed constructor arguments: ${result.typedConstructorArgumentCount} (${_p(result.typedConstructorArgumentCount/result.constructorArgumentCount)}%)');
+  print('typed meth args: ${result.typedMethodArgumentCount} (${_p(result.typedMethodArgumentCount/result.methodArgumentCount)}%)');
+  print('typed meth return: ${result.typedMethodReturnTypeCount} (${_p(result.typedMethodReturnTypeCount/result.methodCount)}%)');
+}
+
+_p(num percent) => percent.isNaN ? '-' : (percent * 100).round();

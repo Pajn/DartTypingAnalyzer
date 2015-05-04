@@ -7,6 +7,8 @@ environment:
   sdk: '>=1.0.0 <2.0.0'
 dependencies:
   analyzer: any
+  git: any
+  github: any
   path: any
 dev_dependencies:
   guinness: any

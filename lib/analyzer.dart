@@ -189,7 +189,10 @@ class _Analyzer extends RecursiveAstVisitor {
   /// anonymous functions the expression does not have a [FunctionDeclaration] as a parent
   @override
   visitFunctionExpression(FunctionExpression node) {
-    var arguments = node.parameters.childEntities.where((e) => e is FormalParameter);
+    var arguments = const [];
+    if (node.parameters != null) {
+      arguments = node.parameters.childEntities.where((e) => e is FormalParameter);
+    }
     var typedArguments = arguments.where((a) => a.childEntities.any((e) =>
         e is TypeName && e.name.name != 'dynamic'));
 

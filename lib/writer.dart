@@ -2,6 +2,7 @@
 // This software is made available under the terms of *either* of the licenses
 // found in LICENSE.APACHE or LICENSE.BSD.
 
+import 'dart:io';
 import 'package:typing_analyzer/analyzer.dart';
 
 typedef Writer(OverallResult result);
@@ -60,7 +61,7 @@ _debugClass(ClassResult result) {
 
 _p(num percent) => percent.isNaN ? '-' : (percent * 100).round();
 
-csvWriter(OverallResult result) {
+csvWriter(OverallResult result, String name) {
   var privateTypedDeclarations =
       _countTypedDeclarations(result.privateCommented) +
       _countTypedDeclarations(result.privateUncommented);
@@ -103,15 +104,22 @@ csvWriter(OverallResult result) {
       _countTotalDeclarations(result.publicUncommented) +
       _countTotalDeclarations(result.publicCommented);
 
-  print(
-      'privateTypedDeclarations,privateUntypedDeclarations,publicTypedDeclarations,publicUntypedDeclarations,'
-      'commentedTypedDeclarations,commentedUntypedDeclarations,uncommentedTypedDeclarations,uncommentedUntypedDeclarations,'
-      'typeCasts,totalDeclarations'
-  );
-  print(
-      '$privateTypedDeclarations,$privateUntypedDeclarations,$publicTypedDeclarations,$publicUntypedDeclarations,'
+  var file = new File('libraries.csv');
+  if (!file.existsSync()) {
+    file.createSync();
+    file.writeAsStringSync(
+        'name,privateTypedDeclarations,privateUntypedDeclarations,publicTypedDeclarations,publicUntypedDeclarations,'
+        'commentedTypedDeclarations,commentedUntypedDeclarations,uncommentedTypedDeclarations,uncommentedUntypedDeclarations,'
+        'typeCasts,totalDeclarations\n',
+        mode: FileMode.APPEND
+    );
+  }
+
+  file.writeAsStringSync(
+      '$name,$privateTypedDeclarations,$privateUntypedDeclarations,$publicTypedDeclarations,$publicUntypedDeclarations,'
       '$commentedTypedDeclarations,$commentedUntypedDeclarations,$uncommentedTypedDeclarations,$uncommentedUntypedDeclarations,'
-      '${result.typeCasts},$totalDeclarations'
+      '${result.typeCasts},$totalDeclarations\n',
+      mode: FileMode.APPEND
   );
 }
 
@@ -173,7 +181,14 @@ classCsvWriter(OverallResult result) {
     }
   });
 
-  print('name,totalDeclarations,publicDeclarations,typedDeclarations,untypedDeclarations');
+  var file = new File('classes.csv');
+  if (!file.existsSync()) {
+    file.createSync();
+    file.writeAsStringSync(
+        'name,totalDeclarations,publicDeclarations,typedDeclarations,untypedDeclarations\n',
+        mode: FileMode.APPEND
+    );
+  }
 
   allClasses.forEach((name, result) {
     var totalDeclarations = _countTotalClassDeclarations(result);
@@ -181,6 +196,9 @@ classCsvWriter(OverallResult result) {
     var typedDeclarations = _countTypedClassDeclarations(result);
     var untypedDeclarations = totalDeclarations - typedDeclarations;
 
-    print('$name,$totalDeclarations,$publicDeclarations,$typedDeclarations,$untypedDeclarations');
+    file.writeAsStringSync(
+        '$name,$totalDeclarations,$publicDeclarations,$typedDeclarations,$untypedDeclarations\n',
+        mode: FileMode.APPEND
+    );
   });
 }

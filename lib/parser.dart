@@ -51,5 +51,15 @@ List<String> _findDartFiles(String path) {
 }
 
 /// Parses all Dart files into ASTs.
-List<CompilationUnit> _parseDartFiles(List<String> paths) =>
-  paths.map(parseDartFile).toList();
+List<CompilationUnit> _parseDartFiles(List<String> paths) {
+  var compilationUnits = [];
+  for (var path in paths) {
+    // Capture errors if the repo contains code that isn't valid Dart
+    try {
+      if (FileSystemEntity.typeSync(path) == FileSystemEntityType.FILE) {
+        compilationUnits.add(parseDartFile(path));
+      }
+    } catch(_) {}
+  };
+  return compilationUnits;
+}

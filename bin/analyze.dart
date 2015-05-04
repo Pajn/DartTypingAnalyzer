@@ -13,5 +13,7 @@ main(List<String> arguments) {
 
   var compilationUnits = parseDartFiles(arguments.first);
   var result = analyze(compilationUnits);
-  debugWriter(result);
+//  debugWriter(result);
+  csvWriter(result);
+  classCsvWriter(result);
 }

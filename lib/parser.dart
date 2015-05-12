@@ -23,13 +23,18 @@ List<String> _findDartFiles(String path) {
   var files = [];
 
   try {
-    new Directory.fromUri(uri).listSync().forEach((entity) {
+    var fileList = new Directory.fromUri(uri).listSync();
+    fileList.forEach((entity) {
       var type = FileSystemEntity.typeSync(entity.path);
 
       if (type == FileSystemEntityType.DIRECTORY) {
-        if (pathTools.basename(entity.path) != 'packages') {
-          files.addAll(_findDartFiles(entity.path));
-        }
+        if (pathTools.basename(entity.path) == 'packages' ||
+            (
+                pathTools.basename(entity.path) != 'test' &&
+                fileList.any((file) => pathTools.basename(entity.path) == 'pubspec.yaml')
+            )
+        ) return;
+        files.addAll(_findDartFiles(entity.path));
       } else if (type != FileSystemEntityType.FILE) {
         return;
       }

@@ -41,11 +41,11 @@ _debugResult(LibraryResult result) {
   print('typed vars: ${result.typedVariableCount} (${_p(result.typedVariableCount/result.variableCount)}%)');
 
   print('classes: ${result.classCount}');
-  result.classes.forEach((name, value) {
-    print(name);
-
-    _debugClass(value);
-  });
+//  result.classes.forEach((name, value) {
+//    print(name);
+//
+//    _debugClass(value);
+//  });
 }
 
 _debugClass(ClassResult result) {
@@ -61,7 +61,7 @@ _debugClass(ClassResult result) {
 
 _p(num percent) => percent.isNaN ? '-' : (percent * 100).round();
 
-csvWriter(OverallResult result, String name) {
+csvWriter(OverallResult result, String name, String github) {
   var privateTypedDeclarations =
       _countTypedDeclarations(result.privateCommented) +
       _countTypedDeclarations(result.privateUncommented);
@@ -108,7 +108,8 @@ csvWriter(OverallResult result, String name) {
   if (!file.existsSync()) {
     file.createSync();
     file.writeAsStringSync(
-        'name,privateTypedDeclarations,privateUntypedDeclarations,publicTypedDeclarations,publicUntypedDeclarations,'
+        'name,githubUrl,'
+        'privateTypedDeclarations,privateUntypedDeclarations,publicTypedDeclarations,publicUntypedDeclarations,'
         'commentedTypedDeclarations,commentedUntypedDeclarations,uncommentedTypedDeclarations,uncommentedUntypedDeclarations,'
         'typeCasts,totalDeclarations\n',
         mode: FileMode.APPEND
@@ -116,7 +117,8 @@ csvWriter(OverallResult result, String name) {
   }
 
   file.writeAsStringSync(
-      '$name,$privateTypedDeclarations,$privateUntypedDeclarations,$publicTypedDeclarations,$publicUntypedDeclarations,'
+      '$name,$github,'
+      '$privateTypedDeclarations,$privateUntypedDeclarations,$publicTypedDeclarations,$publicUntypedDeclarations,'
       '$commentedTypedDeclarations,$commentedUntypedDeclarations,$uncommentedTypedDeclarations,$uncommentedUntypedDeclarations,'
       '${result.typeCasts},$totalDeclarations\n',
       mode: FileMode.APPEND
@@ -147,7 +149,7 @@ _countTotalClassDeclarations(ClassResult result) =>
   result.methodArgumentCount +
   result.variableCount;
 
-classCsvWriter(OverallResult result) {
+classCsvWriter(OverallResult result, String project) {
   var apiSize = {};
   var allClasses = new Map.from(result.privateUncommented.classes);
 
@@ -185,7 +187,7 @@ classCsvWriter(OverallResult result) {
   if (!file.existsSync()) {
     file.createSync();
     file.writeAsStringSync(
-        'name,totalDeclarations,publicDeclarations,typedDeclarations,untypedDeclarations\n',
+        'project,class,totalDeclarations,publicDeclarations,typedDeclarations,untypedDeclarations,abstract\n',
         mode: FileMode.APPEND
     );
   }
@@ -195,9 +197,10 @@ classCsvWriter(OverallResult result) {
     var publicDeclarations = apiSize.containsKey(name) ? apiSize[name] : 0;
     var typedDeclarations = _countTypedClassDeclarations(result);
     var untypedDeclarations = totalDeclarations - typedDeclarations;
+    var abstract = result.abstract;
 
     file.writeAsStringSync(
-        '$name,$totalDeclarations,$publicDeclarations,$typedDeclarations,$untypedDeclarations\n',
+        '$project,$name,$totalDeclarations,$publicDeclarations,$typedDeclarations,$untypedDeclarations,$abstract\n',
         mode: FileMode.APPEND
     );
   });

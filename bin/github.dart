@@ -13,7 +13,7 @@ main(List<String> arguments) async {
     var compilationUnits = parseDartFiles(project.path);
     var result = analyze(compilationUnits);
 
-    csvWriter(result, project.name);
-    classCsvWriter(result);
+    csvWriter(result, project.name, project.url);
+    classCsvWriter(result, project.name);
   }
 }

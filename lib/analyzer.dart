@@ -8,6 +8,8 @@ library analyzer;
 import 'package:analyzer/analyzer.dart';
 
 class ClassResult {
+  final bool abstract;
+
   int variableCount = 0;
   int constructorArgumentCount = 0;
   int constructorCount = 0;
@@ -19,8 +21,10 @@ class ClassResult {
   int typedMethodArgumentCount = 0;
   int typedMethodReturnTypeCount = 0;
 
+  ClassResult(this.abstract);
+
   ClassResult operator +(ClassResult other) =>
-    new ClassResult()
+    new ClassResult(abstract)
       ..variableCount = variableCount + other.variableCount
       ..constructorArgumentCount = constructorArgumentCount + other.constructorArgumentCount
       ..constructorCount = constructorCount + other.constructorCount
@@ -124,6 +128,11 @@ class _Analyzer extends RecursiveAstVisitor {
 
     result.classCount++;
 
+    this.result.privateUncommented.classes[node.name.name] = new ClassResult(node.abstractKeyword != null);
+    this.result.privateCommented.classes[node.name.name] = new ClassResult(node.abstractKeyword != null);
+    this.result.publicUncommented.classes[node.name.name] = new ClassResult(node.abstractKeyword != null);
+    this.result.publicCommented.classes[node.name.name] = new ClassResult(node.abstractKeyword != null);
+
     super.visitClassDeclaration(node);
   }
 
@@ -145,7 +154,6 @@ class _Analyzer extends RecursiveAstVisitor {
       }
     }
 
-    libraryResult.classes.putIfAbsent(node.parent.name.name, () => new ClassResult());
     var result = libraryResult.classes[node.parent.name.name];
 
     result.constructorCount++;
@@ -241,7 +249,6 @@ class _Analyzer extends RecursiveAstVisitor {
       }
     }
 
-    libraryResult.classes.putIfAbsent(node.parent.name.name, () => new ClassResult());
     var result = libraryResult.classes[node.parent.name.name];
 
     result.methodCount++;
@@ -284,7 +291,6 @@ class _Analyzer extends RecursiveAstVisitor {
     }
 
     if (node.parent.parent.parent is ClassDeclaration) {
-      result.classes.putIfAbsent(node.parent.parent.parent.name.name, () => new ClassResult());
       result = result.classes[node.parent.parent.parent.name.name];
     }
 
